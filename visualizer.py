@@ -19,8 +19,8 @@ def plot_results(x_test, x_test_im, sensMap, predDiff, classnames, testIdx, save
     # tarIdx = np.argmax(tarFunc(x_test)[-1])
     # tarClass = classnames[tarIdx]
     tarIdx = testIdx
-    tarClass = 'dhole'
-
+    tarClass = classnames[tarIdx]
+    print('TC: ', tarClass)
     plt.figure()
     plt.subplot(2,2,1)
     plt.imshow(x_test_im, interpolation='nearest')

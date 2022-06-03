@@ -43,18 +43,18 @@ class DataLoader:
         
         return input_batch, input_image, path
 
-    def get_imagenet_data(self,s_idx=1,b_size=4,set_size=128):
+    def get_imagenet_data(self,s_idx=1,b_size=4,set_size=32):
 
         img_set = os.listdir(self.data_path)
 
         # only use 128 cadidates
-        img_set = img_set[1:set_size]
+        img_set = img_set[s_idx:(s_idx + set_size)]
 
         for img_file in img_set:
             if not (img_file.endswith(".png") or img_file.endswith(".jpg")):
                 img_set.remove(img_file)
 
-        image_list = img_set[s_idx:s_idx + set_size]
+        image_list = img_set[1:set_size]
         batch_paths = []
         batch_dspl  = []
 
@@ -66,7 +66,7 @@ class DataLoader:
             img = Image.open(self.data_path + img_path)
             y,x = img.size
             ch  = len(img.getbands())
-            if ch >=self.img_dims[0] and x >= self.img_dims[-1] and y >= self.img_dims[-1]:
+            if ch == self.img_dims[0] and x >= self.img_dims[-1] and y >= self.img_dims[-1]:
                 # get displaye image
                 img_dspl = self.display(img)
                 batch_dspl.append(img_dspl.permute(1, 2, 0))
@@ -75,7 +75,7 @@ class DataLoader:
                 img_pp = self.preprocess(img)
                 img_tensor = img_pp.unsqueeze(0) # create a mini-batch as expected by the model
                 batch = torch.vstack((batch, img_tensor))
-                batch_paths.append(img_path)
+                batch_paths.append(img_path.replace(".",""))
             else:
                 print("Skipped", img_path, "dims were to small")
                 batch_end = batch_end + 1

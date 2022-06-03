@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-@author: Luisa Zintgraf
+@author: Viktor Herrmann
+most of the code is adaped from Luisa Zintgraf
 """
 
 import numpy as np
 import time
 import torch
+
+from config import STRIDE
 
 class PredDiffAnalyser:
     '''
@@ -95,8 +98,7 @@ class PredDiffAnalyser:
         # a matrix where each entry reflects the index in the flattened input (image)
         all_feats = np.reshape([i for i in range(self.num_feats*3)], self.x.shape)
         
-        if overlap:
-            print('overlap')
+        if overlap == 'full':
             windows = np.zeros((self.tests_per_batch, win_size*win_size*3), dtype=int)
             win_idx = 0
             for i in range(self.x.shape[-1]-win_size+1): # rows
@@ -125,9 +127,39 @@ class PredDiffAnalyser:
                 for b in range(self.num_blobs):
                     rel_vects[b][window[window<self.num_feats]] += pred_diffs[b][w]
                 counts[window[window<self.num_feats]] += 1
-                
+        
+        elif overlap == 'stride':
+            windows = np.zeros((self.tests_per_batch, win_size*win_size*3), dtype=int)
+            win_idx = 0
+            stride = STRIDE
+            for i in range(self.x.shape[-1]//stride - (stride+1)): # rows
+                start_time = time.time()
+                for j in range(self.x.shape[-2]//stride- (stride+1)): # columns
+                    # get the window which we want to simulate as unknown
+                    window = all_feats[0,:,i*stride:i*stride+win_size,j*stride:j*stride+win_size].ravel()
+                    windows[win_idx] = window
+                    win_idx += 1
+                    if win_idx==self.tests_per_batch:
+                        # evaluate the prediction difference
+                        pred_diffs = self._get_rel_vect_subset(windows)
+                        for w in range(self.tests_per_batch):
+                            window = windows[w]
+                            for b in range(self.num_blobs):
+                                rel_vects[b][window[window<self.num_feats]] += pred_diffs[b][w]
+                            counts[window[window<self.num_feats]] += 1
+                        win_idx = 0
+                print ("row {}/{} took: --- {:.4f} seconds --- ".format(i,self.x.shape[1]//stride-1,(time.time() - start_time)))
+            # evaluate the rest that didn't fill last batch
+
+            pred_diffs = self._get_rel_vect_subset(windows[:win_idx+1])
+            for w in range(win_idx+1):
+                window = windows[w]
+                for b in range(self.num_blobs):
+                    rel_vects[b][window[window<self.num_feats]] += pred_diffs[b][w]
+                counts[window[window<self.num_feats]] += 1
+
+                    
         else: 
-            print('no overlap')
             windows = np.zeros((self.tests_per_batch, win_size*win_size*3), dtype=int)
             win_idx = 0
             for i in range(self.x.shape[-1]//win_size): # rows
@@ -157,7 +189,6 @@ class PredDiffAnalyser:
                     rel_vects[b][window[window<self.num_feats]] += pred_diffs[b][w]
                 counts[window[window<self.num_feats]] += 1
 
-        print('out of overlap')
                    
         # get average relevance of each feature
         for b in range(self.num_blobs):

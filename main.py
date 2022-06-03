@@ -43,16 +43,17 @@ def experiment(model):
     dataLoader = udl.DataLoader()
 
     test_size = TESTS
-    show      = False
-    X_test,X_test_im, X_filenames = dataLoader.get_imagenet_data(b_size=test_size)
+    show      = SHOW
+    X_test,X_test_im, X_filenames = dataLoader.get_imagenet_data(s_idx=IMG_IDX, b_size=test_size)
 
+    print(X_test.shape, X_filenames)
     path_results = './results/'
     if not os.path.exists(path_results):
         os.makedirs(path_results)  
 
     classifier = ucls.Classifier()
     # Test: get prob of class from 
-    test_prob(classifier,X_test)
+    #test_prob(classifier,X_test)
 
 
     for test_idx in range(test_size):

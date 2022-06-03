@@ -6,6 +6,8 @@ import os.path
 # util functions
 import dataloader as udl
 
+from config import *
+
 
 class MySampler:
 
@@ -90,7 +92,7 @@ class ConditionalSampler:
                 # get image data
 
                 dataloader = udl.DataLoader()
-                X, _,_ = dataloader.get_imagenet_data(b_size=4)
+                X, _,_ = dataloader.get_imagenet_data(s_idx=IMG_IDX, b_size=4)
                 
                 # get samples for fitting the distribution
                 patchesMat = np.empty((0,self.patchSize*self.patchSize), dtype=np.float)
@@ -299,7 +301,7 @@ def save_minmax_values(netname):
     '''
 
     dataloader = udl.DataLoader()
-    X, _,_ = dataloader.get_imagenet_data(b_size=1)
+    X, _,_ = dataloader.get_imagenet_data(s_idx=IMG_IDX, b_size=1)
 
     X = X.numpy()
 
