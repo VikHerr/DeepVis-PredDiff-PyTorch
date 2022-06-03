@@ -7,3 +7,9 @@
 **/img/*
 *.ipynb_checkpoints*
 *__pycache__
+
+**data
+**code-workspace*
+
+**poetry.lock
+**pyproject.toml
