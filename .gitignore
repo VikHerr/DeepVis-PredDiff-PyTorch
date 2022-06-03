@@ -1,0 +1,9 @@
+# git ignore file
+
+
+**/data/val/*
+**/gaussians/*
+**/results/**
+**/img/*
+*.ipynb_checkpoints*
+*__pycache__
