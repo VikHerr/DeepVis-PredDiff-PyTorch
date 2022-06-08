@@ -92,7 +92,7 @@ class ConditionalSampler:
                 # get image data
 
                 dataloader = udl.DataLoader()
-                X, _,_ = dataloader.get_imagenet_data(s_idx=IMG_IDX, b_size=4)
+                X, _,_ = dataloader.get_imagenet_data(s_idx=IMG_IDX, b_size=8)
                 
                 # get samples for fitting the distribution
                 patchesMat = np.empty((0,self.patchSize*self.patchSize), dtype=np.float)

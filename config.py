@@ -4,8 +4,8 @@
 TESTS = 1
 SAMPLE_STYLE = 'conditional'
 WIN_SIZE = 10 
-OVERLAPPING = 'stride'
-STRIDE      = 3
+OVERLAPPING = 'stride' # 'None' 'full'
+STRIDE      = 5
 NUM_SAMPLES = 10
 PADDING_SIZE = 2
 

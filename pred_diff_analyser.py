@@ -132,9 +132,9 @@ class PredDiffAnalyser:
             windows = np.zeros((self.tests_per_batch, win_size*win_size*3), dtype=int)
             win_idx = 0
             stride = STRIDE
-            for i in range(self.x.shape[-1]//stride - (stride+1)): # rows
+            for i in range(self.x.shape[-1]//stride - (win_size//stride) + 1): # rows
                 start_time = time.time()
-                for j in range(self.x.shape[-2]//stride- (stride+1)): # columns
+                for j in range(self.x.shape[-2]//stride - (win_size//stride) + 1): # columns
                     # get the window which we want to simulate as unknown
                     window = all_feats[0,:,i*stride:i*stride+win_size,j*stride:j*stride+win_size].ravel()
                     windows[win_idx] = window
@@ -148,7 +148,7 @@ class PredDiffAnalyser:
                                 rel_vects[b][window[window<self.num_feats]] += pred_diffs[b][w]
                             counts[window[window<self.num_feats]] += 1
                         win_idx = 0
-                print ("row {}/{} took: --- {:.4f} seconds --- ".format(i,self.x.shape[1]//stride-1,(time.time() - start_time)))
+                print ("row {}/{} took: --- {:.4f} seconds --- ".format(i,(self.x.shape[-1]//stride)-1,(time.time() - start_time)))
             # evaluate the rest that didn't fill last batch
 
             pred_diffs = self._get_rel_vect_subset(windows[:win_idx+1])

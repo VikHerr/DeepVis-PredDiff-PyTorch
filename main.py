@@ -1,3 +1,4 @@
+from statistics import mode
 import numpy as np
 import torch 
 import torchvision as tv
@@ -14,18 +15,51 @@ import matplotlib.pyplot as plt
 from pred_diff_analyser import PredDiffAnalyser
 
 
-
-def getMobileNetV2(show=False):
+def infoResNet(show=False,mVersion='resnet50'):
     '''
-    get mobelNetV2 with pretrained weights on image net in eval mode
+    ResNet model info
     '''
-    model = tv.models.mobilenet_v2(pretrained=True)
-    if show: 
-        print('eval model: \n', model)
 
+    #model = torch.hub.load('pytorch/vision:v0.10.0', 'resnet18', pretrained=True)
+    model = tv.models.resnet50(pretrained=True)
     model.eval()
+    # define preprocess and disply corpping functions
+    preprocess = tv.transforms.Compose([
+        tv.transforms.Resize(256),
+        tv.transforms.CenterCrop(224),
+        tv.transforms.ToTensor(),
+        tv.transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),])
+    
+    display = tv.transforms.Compose([
+        tv.transforms.Resize(256),
+        tv.transforms.CenterCrop(224),
+        tv.transforms.ToTensor()])
 
-    return model
+    return {'model' : mVersion, 'preprocess' : preprocess, 'display' : display}
+
+def infoMobileNetV2(show=False):
+    '''
+    mobelNetV2 model info
+    '''
+    # model = tv.models.mobilenet_v2(pretrained=True)
+    # if show: 
+    #     print('eval model: \n', model)
+
+    # model.eval()
+
+    # define preprocess and disply corpping functions
+    preprocess = tv.transforms.Compose([
+        tv.transforms.Resize(256),
+        tv.transforms.CenterCrop(224),
+        tv.transforms.ToTensor(),
+        tv.transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),])
+    
+    display = tv.transforms.Compose([
+        tv.transforms.Resize(256),
+        tv.transforms.CenterCrop(224),
+        tv.transforms.ToTensor()])
+
+    return {'model' : "moblienet_v2",'preprocess' : preprocess, 'display' : display}
 
 def test_prob(classifier, x):
     '''
@@ -40,7 +74,7 @@ def test_prob(classifier, x):
 
 def experiment(model):
 
-    dataLoader = udl.DataLoader()
+    dataLoader = udl.DataLoader(model=model)
 
     test_size = TESTS
     show      = SHOW
@@ -51,7 +85,7 @@ def experiment(model):
     if not os.path.exists(path_results):
         os.makedirs(path_results)  
 
-    classifier = ucls.Classifier()
+    classifier = ucls.Classifier(model=model['model'])
     # Test: get prob of class from 
     #test_prob(classifier,X_test)
 
@@ -91,9 +125,9 @@ def experiment(model):
 
 def main():
 
-    model = getMobileNetV2()
-    
-    batch_size = 128 
+    #model = infoMobileNetV2()
+    # resnet versions: 18,34,50,101,152
+    model = infoResNet(mVersion='resnet18')
     experiment(model)
 
 

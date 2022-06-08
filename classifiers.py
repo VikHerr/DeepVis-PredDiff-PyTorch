@@ -75,10 +75,16 @@ class Classifier:
         '''
         define classifier model
         '''
+
         if(self.name=='moblienet_v2'):
             model = tv.models.mobilenet_v2(pretrained=True)
             # switch to inferance mode (This should be done for all models)
             model.eval()
+        elif('resnet' in self.name):
+            #model = torch.hub.load('pytorch/vision:v0.10.0', self.name, pretrained=True)
+            model = tv.models.resnet50(pretrained=True)
+            model.eval()
+
         else:
             assert False, 'unkown model name!'
 

@@ -8,10 +8,15 @@ import matplotlib.pyplot as plt
 
 class DataLoader:
 
-    def __init__(self, data_path='./data/val/', img_dims=(3,224,224)):
+    def __init__(self,model=None, data_path='./data/val/', img_dims=(3,224,224), ):
         '''
         init data loader for MobileNetV2 (for now only MNV2!)
+        preprocess: list [<preprocess function>, <display function>] of specific model
         '''
+
+        # self.preprocess = model['preprocess']
+        # self.display    = model['display']
+
         self.preprocess = tv.transforms.Compose([
             tv.transforms.Resize(256),
             tv.transforms.CenterCrop(224),
