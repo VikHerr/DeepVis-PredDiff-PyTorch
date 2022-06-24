@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 class DataLoader:
 
-    def __init__(self,model=None, data_path='./data/val/', img_dims=(3,224,224), ):
+    def __init__(self,model=None, path='./data/val/', img_dims=(3,224,224), ):
         '''
         init data loader for MobileNetV2 (for now only MNV2!)
         preprocess: list [<preprocess function>, <display function>] of specific model
@@ -29,7 +29,7 @@ class DataLoader:
             tv.transforms.ToTensor()])
         
 
-        self.data_path = data_path
+        self.data_path = path
         self.img_dims = img_dims
 
 
@@ -48,26 +48,36 @@ class DataLoader:
         
         return input_batch, input_image, path
 
-    def get_imagenet_data(self,s_idx=1,b_size=4,set_size=32):
+    def get_imagenet_data(self,s_idx=1,b_size=4,set_size=8):
 
         img_set = os.listdir(self.data_path)
 
-        # only use 128 cadidates
-        img_set = img_set[s_idx:(s_idx + set_size)]
+        #print(img_set)
 
-        for img_file in img_set:
-            if not (img_file.endswith(".png") or img_file.endswith(".jpg")):
-                img_set.remove(img_file)
+        # restrict cadidates
+        img_set = img_set[s_idx:(s_idx + set_size + 1)]
+        #print(img_set)
 
-        image_list = img_set[1:set_size]
+
+        # for img_file in img_set:
+        #     if not (img_file.endswith(".png") or img_file.endswith(".jpg") or img_file.endswith(".jpeg")):
+        #         img_set.remove(img_file)
+        #         print('removed', img_file)
+
+        image_list = img_set # [1:set_size]
         batch_paths = []
         batch_dspl  = []
 
+
+        print(self.data_path)
         # empty batch
         batch = torch.empty((0,self.img_dims[0], self.img_dims[1], self.img_dims[2]))
         batch_end = b_size
 
         for idx, img_path in enumerate(image_list):
+        # for idx in b_size:
+
+            #img_path = 'ILSVRC2012_val_00013083.JPEG'
             img = Image.open(self.data_path + img_path)
             y,x = img.size
             ch  = len(img.getbands())
@@ -81,6 +91,7 @@ class DataLoader:
                 img_tensor = img_pp.unsqueeze(0) # create a mini-batch as expected by the model
                 batch = torch.vstack((batch, img_tensor))
                 batch_paths.append(img_path.replace(".",""))
+                #print('added ', img_path, 'to batch')
             else:
                 print("Skipped", img_path, "dims were to small")
                 batch_end = batch_end + 1

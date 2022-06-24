@@ -35,6 +35,11 @@ def plot_results(x_test, x_test_im, sensMap, predDiff, classnames, testIdx, save
     frame.axes.get_xaxis().set_ticks([])
     frame.axes.get_yaxis().set_ticks([]) 
     plt.subplot(2,2,3)
+    # averageWeight = np.average(predDiff, axis=0)
+    # print('av shape', averageWeight.shape, averageWeight)
+    # maxIdx = np.argmax(averageWeight)
+    # print('maxIdx', maxIdx)
+    # print('class:',  classnames[maxIdx],  classnames[tarIdx])
     p = predDiff.reshape((imsize[1],imsize[2],-1))[:,:,tarIdx]
     plt.imshow(p, cmap=cm.seismic, vmin=-np.max(np.abs(p)), vmax=np.max(np.abs(p)), interpolation='nearest')
     plt.colorbar()
@@ -58,6 +63,7 @@ def plot_results(x_test, x_test_im, sensMap, predDiff, classnames, testIdx, save
     plt.tight_layout()
     plt.tight_layout()
     plt.tight_layout()
+    plt.show()
     plt.savefig(save_path)
     plt.close()
 
