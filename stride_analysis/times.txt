@@ -1,7 +1,12 @@
-
+mobilenet_v2
 
 stride1  : 45.0 minutes
 stirde2  : 11.5 minutes
 stride3  :  5.5 minutes
 stirde5  :  1.5 minutes
 stirde10 :  0.5 minutes
+
+resnet50
+
+stride3  : 12.5 minutes
+stirde5  : 4.5  minutes
