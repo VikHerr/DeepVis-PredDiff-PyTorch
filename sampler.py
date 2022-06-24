@@ -9,12 +9,6 @@ import dataloader as udl
 from config import *
 
 
-class MySampler:
-
-    def __init__(self):
-        pass
-
-
 class ConditionalSampler:
     '''
     Conditional sampler for image patches
@@ -62,6 +56,7 @@ class ConditionalSampler:
         self.dotProdForMean = None
         self.cond_cov = None
 
+
     def _get_gauss_params(self):
         '''
         Returns the mean and covariance for the gaussian model on the whole
@@ -92,7 +87,8 @@ class ConditionalSampler:
                 # get image data
 
                 dataloader = udl.DataLoader()
-                X, _,_ = dataloader.get_imagenet_data(s_idx=IMG_IDX, b_size=8)
+                #X, _,_ = dataloader.get_imagenet_data(s_idx=IMG_IDX, b_size=1, set_size=3)
+                X, _,_ = dataloader.get_imagenet_data(s_idx=0, b_size=256, set_size=280)
                 
                 # get samples for fitting the distribution
                 patchesMat = np.empty((0,self.patchSize*self.patchSize), dtype=np.float)
@@ -300,15 +296,16 @@ def save_minmax_values(netname):
     sampler so that we don't have overflowing values)
     '''
 
-    dataloader = udl.DataLoader()
-    X, _,_ = dataloader.get_imagenet_data(s_idx=IMG_IDX, b_size=1)
+    dataloader = udl.DataLoader()#path='./img/')
+    #X, _,_ = dataloader.get_imagenet_data(s_idx=IMG_IDX, b_size=1, set_size=3)
+    X, _,_ = dataloader.get_imagenet_data(s_idx=0, b_size=256, set_size=280)
 
     X = X.numpy()
 
     minMaxVals = np.zeros((2,3,X.shape[-1],X.shape[-1]))
 
-    minMaxVals[0] = np.amin(X, axis=1)
-    minMaxVals[1] = np.amax(X, axis=1)
+    minMaxVals[0] = np.amin(X, axis=0)
+    minMaxVals[1] = np.amax(X, axis=0)
     path_folder = './gaussians/'
     if not os.path.exists(path_folder):
         os.makedirs(path_folder)
