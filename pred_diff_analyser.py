@@ -88,16 +88,19 @@ class PredDiffAnalyser:
         
         # create array for relevance vectors, each element has dimensions (num_feats)*blobdimension
         # where the relevance of each feature on the different activations in that blob is stored
-        rel_vects = [np.zeros((self.num_feats, self.true_tar_val[0].shape[-1]), dtype=np.float64)]
         #rel_vects = [np.zeros((self.num_feats, self.true_tar_val[b].shape[0]), dtype=np.float64) for b in range(self.num_blobs)]
 
+        # added: take only output 'BLOB' (This only removes batch dim here)
+        rel_vects = [np.zeros((self.num_feats, self.true_tar_val[0].shape[0]), dtype=np.float64)]
 
         # a counts vector to keep track of how often a feature is marginalised out
         counts = np.zeros((self.num_feats), dtype=np.int)
 
         # a matrix where each entry reflects the index in the flattened input (image)
+        # matix of idx for each pixel
         all_feats = np.reshape([i for i in range(self.num_feats*3)], self.x.shape)
         
+
         if overlap == 'full':
             windows = np.zeros((self.tests_per_batch, win_size*win_size*3), dtype=int)
             win_idx = 0
@@ -178,7 +181,7 @@ class PredDiffAnalyser:
                                 rel_vects[b][window[window<self.num_feats]] += pred_diffs[b][w]
                             counts[window[window<self.num_feats]] += 1
                         win_idx = 0
-                print ("row {}/{} took: --- {:.4f} seconds --- ".format(i,self.x.shape[1]/win_size-1,(time.time() - start_time)))
+                print ("row {}/{} took: --- {:.4f} seconds --- ".format(i,self.x.shape[-1]//(win_size),(time.time() - start_time)))
 #                sys.stdout.write("\033[F")
                 
             # evaluate the rest that didn't fill last batch
@@ -268,18 +271,24 @@ class PredDiffAnalyser:
         prediction_diffs = []
         # For the laplace correction, we need the number of training instances
         IMAGENET_TRAINSIZE = 100000
+        IMAGENET_CLASSES   = 1000
         pred_diffs = np.zeros((self.tests_per_batch,tarVals.shape[-1]))
         for t in range(self.tests_per_batch):
             avgP = np.average(tarVals[t], axis=0)
-            # if we deal with probabilities, i.e., the last blobs, use this (always):
-            # do a laplace correction to avoid problems with zero probabilities
-            tarVal_laplace = (self.true_tar_val*IMAGENET_TRAINSIZE+1)/(IMAGENET_TRAINSIZE+1) #len(self.true_tar_val))
-            avgP_laplace = (avgP*IMAGENET_TRAINSIZE+1)/(IMAGENET_TRAINSIZE+1)# len(self.true_tar_val))
-            # calculate the odds for the true targets and  the targets with some features marginalised out
-            oddsTarVal = np.log2(tarVal_laplace/(1-tarVal_laplace))
-            oddsAvgP = np.log2(avgP_laplace/(1-avgP_laplace))
-            # take average over feature maps
-            pd = oddsTarVal-oddsAvgP
+            if self.classifier.softmax: 
+                # if we deal with probabilities, i.e., the last blobs, use this (always):
+                # do a laplace correction to avoid problems with zero probabilities
+                tarVal_laplace = (self.true_tar_val[0]*IMAGENET_TRAINSIZE+1)/(IMAGENET_TRAINSIZE+IMAGENET_CLASSES)
+                avgP_laplace = (avgP*IMAGENET_TRAINSIZE+1)/(IMAGENET_TRAINSIZE+IMAGENET_CLASSES)# len(self.true_tar_val))
+                # calculate the odds for the true targets and  the targets with some features marginalised out
+                oddsTarVal = np.log2(tarVal_laplace/(1-tarVal_laplace))
+                oddsAvgP = np.log2(avgP_laplace/(1-avgP_laplace))
+                # take average over feature maps
+                pd = oddsTarVal-oddsAvgP
+            else:
+                pd = self.true_tar_val[0] - avgP    
+
+
             # avg/max for the feature maps if we have feature maps in conv layers
             pd = pd.reshape((pd.shape[0], -1))
             pred_diffs[t] = np.average(pd, axis=1) # will only have an effect for convolutional layers
