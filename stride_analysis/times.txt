@@ -10,3 +10,22 @@ resnet50
 
 stride3  : 12.5 minutes
 stirde5  : 4.5  minutes
+
+
+# TUSKER TIME:
+
+
+Stride = 20 (no overlap)
+MODEL: t(min): prob
+VGG16: 0.97  : 96.8 % 
+MNV2 : 0.18  : 78.3 %
+RN50 : 0.35  : 93.0 %
+AN   : 0.12  : 71.2 %
+
+Stide Time MNV2
+S   :  t(min)
+20  :  0.122
+10  :  0.598
+05  :  2.189
+03  :  6.064
+02  : 13.361
