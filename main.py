@@ -14,6 +14,9 @@ import matplotlib.pyplot as plt
 
 from pred_diff_analyser import PredDiffAnalyser
 
+# ood model
+import model.ood.react.resnet as rn
+
 
 def infoResNet(show=False,mVersion='resnet50'):
     '''
@@ -28,7 +31,6 @@ def infoResNet(show=False,mVersion='resnet50'):
     else:
         assert False, 'invaled resnet version'
 
-    model.eval()
     # define preprocess and disply corpping functions
     preprocess = tv.transforms.Compose([
         tv.transforms.Resize(256),
@@ -41,7 +43,7 @@ def infoResNet(show=False,mVersion='resnet50'):
         tv.transforms.CenterCrop(224),
         tv.transforms.ToTensor()])
 
-    return {'model' : mVersion, 'preprocess' : preprocess, 'display' : display}
+    return {'model' : model, 'name' : mVersion, 'preprocess' : preprocess, 'display' : display, 'path' : ''}
 
 def infoMobileNetV2(show=False):
     '''
@@ -65,7 +67,7 @@ def infoMobileNetV2(show=False):
         tv.transforms.CenterCrop(224),
         tv.transforms.ToTensor()])
 
-    return {'model' : "moblienet_v2",'preprocess' : preprocess, 'display' : display}
+    return {'model' : model, 'name' : "moblienet_v2",'preprocess' : preprocess, 'display' : display, 'path' : ''}
 
 def infoAlexNet(show=False):
     '''
@@ -88,7 +90,7 @@ def infoAlexNet(show=False):
         tv.transforms.CenterCrop(224),
         tv.transforms.ToTensor()])
 
-    return {'model' : "alexnet",'preprocess' : preprocess, 'display' : display}
+    return {'model' : model, 'name' : "alexnet",'preprocess' : preprocess, 'display' : display, 'path' : ''}
 
 def infoVgg16(show=False):
     '''
@@ -111,7 +113,32 @@ def infoVgg16(show=False):
         tv.transforms.CenterCrop(224),
         tv.transforms.ToTensor()])
 
-    return {'model' : "vgg16",'preprocess' : preprocess, 'display' : display}
+    return {'model' : model, 'name' : "vgg16",'preprocess' : preprocess, 'display' : display, 'path' : ''}
+
+
+def infoCostumRSICD(path, show=False):
+    '''
+    RSIDCD model info RESNET50
+    '''
+
+    model = rn.ResNet(rn.Bottleneck, [3,4,6,3], 23)
+    model.load_state_dict(torch.load(path))
+    if show: 
+        print('eval model: \n', model)
+
+    # define preprocess and disply corpping functions
+    preprocess = tv.transforms.Compose([
+        tv.transforms.Resize(256),
+        tv.transforms.CenterCrop(224),
+        tv.transforms.ToTensor(),
+        tv.transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),])
+    
+    display = tv.transforms.Compose([
+        tv.transforms.Resize(256),
+        tv.transforms.CenterCrop(224),
+        tv.transforms.ToTensor()])
+
+    return {'model' : model, 'name' : "costum",'preprocess' : preprocess, 'display' : display, 'path' : path}
 
 
 
@@ -134,23 +161,25 @@ def viewImage(model):
     show      = True
     X_test,X_test_im, X_filenames = dataLoader.get_imagenet_data(s_idx=IMG_IDX, b_size=test_size, set_size=1)
 
-    classifier = ucls.Classifier(model=model['model'], softmax=False)
+    classifier = ucls.Classifier(model, softmax=SOFTMAX)
 
-    classifier.softmax = False   
-    test_prob(classifier, X_test)
-    classifier.softmax = True
-    test_prob(classifier, X_test)
+    res = classifier.predict(X_test)
+    print('RES SHAPE: ', res.shape)
+    print(res)
+    # classifier.softmax = False   
+    # test_prob(classifier, X_test)
+    # classifier.softmax = True
+    # test_prob(classifier, X_test)
 
+    # for test_idx in range(test_size):
 
-    for test_idx in range(test_size):
+    #     if show:
+    #         plt.imshow(X_test_im[test_idx])
+    #         plt.show()
 
-        if show:
-            plt.imshow(X_test_im[test_idx])
-            plt.show()
-
-        top_prob, top_catid = classifier.getTopCat(X_test[test_idx:test_idx+1])
-        y_pred_label = classifier.categories[top_catid]
-        print('ylable', y_pred_label,'idx %d prob %.3f' %(top_catid,top_prob))
+    #     top_prob, top_catid = classifier.getTopCat(X_test[test_idx:test_idx+1])
+    #     y_pred_label = classifier.categories[top_catid]
+    #     print('ylable', y_pred_label,'idx %d prob %.3f' %(top_catid,top_prob))
 
 
 def experiment(model):
@@ -166,7 +195,7 @@ def experiment(model):
     if not os.path.exists(path_results):
         os.makedirs(path_results)  
 
-    classifier = ucls.Classifier(model=model['model'], softmax=softmax)
+    classifier = ucls.Classifier(model, softmax=softmax)
     # Test: get prob of class from 
     #test_prob(classifier,X_test)
 
@@ -208,9 +237,9 @@ def experiment(model):
         print ("--- Total computation took {:.4f} minutes ---".format((time.time() - start_time)/60))
         # plot and save the results
         uv.plot_results(x_test, x_test_im, sensMap, pred_diff[0], classifier.categories, top_catid, save_path)
-        uv.plot_results(x_test, x_test_im, sensMap, pred_diff[0], classifier.categories, 385, save_path)
-        uv.plot_results(x_test, x_test_im, sensMap, pred_diff[0], classifier.categories, 386, save_path)
-        #np.savez(save_path, *pred_diff)
+        # uv.plot_results(x_test, x_test_im, sensMap, pred_diff[0], classifier.categories, 385, save_path)
+        # uv.plot_results(x_test, x_test_im, sensMap, pred_diff[0], classifier.categories, 386, save_path)
+        np.savez(save_path, *pred_diff)
         print('result:', save_path)
     
 
@@ -218,13 +247,14 @@ def experiment(model):
 
 def main():
 
-    model = infoMobileNetV2(show=False)
+    # model = infoMobileNetV2(show=False)
     # resnet versions: 18,34,50,101,152
     # model = infoResNet(mVersion='resnet50')
     # model = infoAlexNet()
     # model = infoVgg16()
-    experiment(model)
-    # viewImage(model)
+    model = infoCostumRSICD('./model/ood/react/resnet50_rsicd.pth', show=False)
+    #experiment(model)
+    viewImage(model)
 
 
 if __name__=='__main__':

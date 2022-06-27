@@ -63,8 +63,8 @@ def plot_results(x_test, x_test_im, sensMap, predDiff, classnames, testIdx, save
     plt.tight_layout()
     plt.tight_layout()
     plt.tight_layout()
-    plt.show()
     plt.savefig(save_path)
+    plt.show()
     plt.close()
 
 
