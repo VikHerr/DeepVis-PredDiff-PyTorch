@@ -5,7 +5,7 @@ import torchvision as tv
 
 class Classifier:
 
-    def __init__(self, model, path="model/ilsvrc_2012_labels.txt", softmax=True):
+    def __init__(self, model, path="model/ilsvrc_2012_labels.txt", softmax=True, categroies="model/imagenet_classes.txt"):
         '''
         path: path to result categories
         '''
@@ -14,7 +14,7 @@ class Classifier:
         # self.cPath = model['path'] # only for costum models
         self.gpu = torch.cuda.is_available()
         self.model = self.__getClassifier(model)
-        self.categories = self.__getCategories(path)
+        self.categories = self.__getCategories(categroies)
         self.softmax    = softmax
 
     def predict(self,x):
@@ -118,7 +118,7 @@ class Classifier:
         return model
 
 
-    def __getCategories(self, path="model/imagenet_classes.txt"):
+    def __getCategories(self, path):
         '''
         load categories for classifier
         '''

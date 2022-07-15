@@ -4,6 +4,7 @@
 **/data/val/*
 **/gaussians/*
 **/results/**
+**/res_*/**
 **/img/*
 *.ipynb_checkpoints*
 *__pycache__

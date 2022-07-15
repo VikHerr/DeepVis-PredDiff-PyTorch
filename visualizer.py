@@ -10,7 +10,7 @@ import matplotlib.cm as cm
 import pylab
 
 
-def plot_results(x_test, x_test_im, sensMap, predDiff, classnames, testIdx, save_path):
+def plot_results(x_test, x_test_im, sensMap, predDiff, classnames, testIdx, save_path=None):
     '''
     Plot the results of the relevance estimation
     '''
@@ -41,7 +41,12 @@ def plot_results(x_test, x_test_im, sensMap, predDiff, classnames, testIdx, save
     # print('maxIdx', maxIdx)
     # print('class:',  classnames[maxIdx],  classnames[tarIdx])
     p = predDiff.reshape((imsize[1],imsize[2],-1))[:,:,tarIdx]
-    plt.imshow(p, cmap=cm.seismic, vmin=-np.max(np.abs(p)), vmax=np.max(np.abs(p)), interpolation='nearest')
+    p_all = predDiff.reshape((imsize[1],imsize[2],-1))
+    # plt.imshow(p, cmap=cm.seismic, vmin=-np.max(np.abs(p)), vmax=np.max(np.abs(p)), interpolation='nearest')
+    # plt.imshow(p, cmap=cm.seismic, vmin=-np.max(np.abs(p_all)), vmax=np.max(np.abs(p_all)), interpolation='nearest')
+    plt.imshow(p, cmap=cm.seismic, vmin=(-1), vmax=1, interpolation='nearest')
+    # plt.imshow(p, cmap=cm.seismic, interpolation='nearest')
+
     plt.colorbar()
     #plt.imshow(np.abs(p), cmap=cm.Greys_r)
     plt.title('weight of evidence')
@@ -53,6 +58,7 @@ def plot_results(x_test, x_test_im, sensMap, predDiff, classnames, testIdx, save
     p = get_overlayed_image(x_test_im, p)
     #p = predDiff[0,:,:,np.argmax(netPred(net, x_test)[0]),1].reshape((224,224))
     plt.imshow(p, cmap=cm.seismic, vmin=-np.max(np.abs(p)), vmax=np.max(np.abs(p)), interpolation='nearest')
+
     #plt.title('class entropy')
     frame = pylab.gca()
     frame.axes.get_xaxis().set_ticks([])
@@ -63,7 +69,8 @@ def plot_results(x_test, x_test_im, sensMap, predDiff, classnames, testIdx, save
     plt.tight_layout()
     plt.tight_layout()
     plt.tight_layout()
-    plt.savefig(save_path)
+    if save_path:
+        plt.savefig(save_path)
     plt.show()
     plt.close()
 

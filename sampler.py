@@ -73,8 +73,10 @@ class ConditionalSampler:
         if os.path.exists(path_mean+'.npy') and os.path.exists(path_cov+'.npy'):
             
             means = np.load(path_mean+'.npy')
+            print('means: ', means.shape)
             covs = np.load(path_cov+'.npy')       
-            
+            print('covs: ', covs.shape)
+
         else:
                  
             for c in [0,1,2]:
@@ -86,9 +88,9 @@ class ConditionalSampler:
 
                 # get image data
 
-                dataloader = udl.DataLoader()
-                #X, _,_ = dataloader.get_imagenet_data(s_idx=IMG_IDX, b_size=1, set_size=3)
-                X, _,_ = dataloader.get_imagenet_data(s_idx=0, b_size=256, set_size=280)
+                dataloader = udl.DataLoader(path=DATASET_PATH)
+                #X, _,_ = dataloader.get_data(s_idx=IMG_IDX, b_size=1, set_size=3)
+                X, _,_ = dataloader.get_data(s_idx=0, b_size=PARAM_DATASET_SIZE, set_size=int(PARAM_DATASET_SIZE*1.1))
                 
                 # get samples for fitting the distribution
                 patchesMat = np.empty((0,self.patchSize*self.patchSize), dtype=np.float)
@@ -296,9 +298,9 @@ def save_minmax_values(netname):
     sampler so that we don't have overflowing values)
     '''
 
-    dataloader = udl.DataLoader()#path='./img/')
-    #X, _,_ = dataloader.get_imagenet_data(s_idx=IMG_IDX, b_size=1, set_size=3)
-    X, _,_ = dataloader.get_imagenet_data(s_idx=0, b_size=256, set_size=280)
+    dataloader = udl.DataLoader(path=DATASET_PATH)
+    #X, _,_ = dataloader.get_data(s_idx=IMG_IDX, b_size=1, set_size=3)
+    X, _,_ = dataloader.get_data(s_idx=0, b_size=PARAM_DATASET_SIZE, set_size=int(PARAM_DATASET_SIZE*1.1))
 
     X = X.numpy()
 

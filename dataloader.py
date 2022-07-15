@@ -48,16 +48,28 @@ class DataLoader:
         
         return input_batch, input_image, path
 
-    def get_imagenet_data(self,s_idx=1,b_size=4,set_size=8):
+    def get_data(self,s_idx=1,b_size=4,set_size=None, sort=True):
+        '''
+        
+        ### get data from data set
+        paramter: 
+        - s_idx    : offset for startpoint in dataset
+        - b_size   : number of samples for output
+        - set_size : number of considered samples (some might be deleted 
+        when they do not fit into a 224x224 image) this should be set for really large data sets
+        - sort     : sort os dir list before access (this might be really slow for big data set)
+        '''
 
         img_set = os.listdir(self.data_path)
-
-        #print(img_set)
+        if sort:
+            img_set.sort()
+        # print(img_set)
 
         # restrict cadidates
-        img_set = img_set[s_idx:(s_idx + set_size + 1)]
-        #print(img_set)
-
+        if set_size:
+            img_set = img_set[s_idx:(s_idx + set_size + 1)]
+        else:
+            img_set = img_set[s_idx:]
 
         # for img_file in img_set:
         #     if not (img_file.endswith(".png") or img_file.endswith(".jpg") or img_file.endswith(".jpeg")):
