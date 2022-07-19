@@ -46,7 +46,8 @@ class ConditionalSampler:
         self.patchSize = win_size+2*self.padding_size
         # the mean and covariance for the gaussian distribution on the whole patch
         self.meanVects, self.covMats = self._get_gauss_params()
-        
+        print('mean', self.meanVects.shape, 'cov', self.covMats.shape)
+
         # the min/max values for the features seen in the data, so that we can cut off overfloating values
         if not os.path.exists(self.path_folder+'{}_minMaxVals.npy'.format(netname)):
             save_minmax_values(self.netname)
@@ -89,7 +90,7 @@ class ConditionalSampler:
                 # get image data
 
                 dataloader = udl.DataLoader(path=DATASET_PATH)
-                #X, _,_ = dataloader.get_data(s_idx=IMG_IDX, b_size=1, set_size=3)
+                # X, _,_ = dataloader.get_data(s_idx=IMG_IDX, b_size=1, set_size=3)
                 X, _,_ = dataloader.get_data(s_idx=0, b_size=PARAM_DATASET_SIZE, set_size=int(PARAM_DATASET_SIZE*1.1))
                 
                 # get samples for fitting the distribution
@@ -299,7 +300,7 @@ def save_minmax_values(netname):
     '''
 
     dataloader = udl.DataLoader(path=DATASET_PATH)
-    #X, _,_ = dataloader.get_data(s_idx=IMG_IDX, b_size=1, set_size=3)
+    # X, _,_ = dataloader.get_data(s_idx=IMG_IDX, b_size=1, set_size=3)
     X, _,_ = dataloader.get_data(s_idx=0, b_size=PARAM_DATASET_SIZE, set_size=int(PARAM_DATASET_SIZE*1.1))
 
     X = X.numpy()

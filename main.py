@@ -185,7 +185,7 @@ def test_prob(classifier, x):
 
 def viewImage(model):
 
-    dataLoader = udl.DataLoader(model=model, path=DATASET_PATH)
+    dataLoader = udl.DataLoader(model=model, path=IMAGE_PATH)
     #dataLoader = udl.DataLoader(model=model)# , path='./img/')
 
     test_size = TESTS
@@ -221,7 +221,7 @@ def viewImage(model):
 
 def experiment(model):
 
-    dataLoader = udl.DataLoader(model=model, path=DATASET_PATH)
+    dataLoader = udl.DataLoader(model=model, path=IMAGE_PATH)
 
     test_size = TESTS
     show      = SHOW
@@ -303,7 +303,7 @@ def visualize(model, im_idx=IMG_IDX, test_classes=5):
     path_results = RESULT_PATH
 
 
-    dataLoader = udl.DataLoader(model=model, path=DATASET_PATH)
+    dataLoader = udl.DataLoader(model=model, path=IMAGE_PATH)
 
     X_test,X_test_im, X_filenames = dataLoader.get_data(s_idx=im_idx, b_size=test_size)
 
@@ -361,13 +361,17 @@ def main():
     args = parser.parse_args()
 
 
-
-    model = infoMobileNetV2(show=False)
-    # resnet versions: 18,34,50,101,152
-    # model = infoResNet(mVersion='resnet50')
-    # model = infoAlexNet()
-    # model = infoVgg16()
-    # model = infoCostumRSICD('./model/ood/react/resnet50_rsicd.pth', show=False)
+    if MODEL == 'mnv2':
+        model = infoMobileNetV2(show=False)
+    elif MODEL == 'resnet50':
+        # resnet versions: 18,34,50,101,152
+        model = infoResNet(mVersion='resnet50')
+    elif MODEL == 'alexnet':
+        model = infoAlexNet()
+    elif MODEL == 'vgg16':
+        model = infoVgg16()
+    elif MODEL == 'c_jakob':
+        model = infoCostumRSICD('./model/ood/react/resnet50_rsicd.pth', show=False)
     
     if args.visualize:
         visualize(model)

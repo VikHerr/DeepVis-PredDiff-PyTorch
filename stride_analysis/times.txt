@@ -13,8 +13,6 @@ stirde5  : 4.5  minutes
 
 
 # TUSKER TIME:
-
-
 Stride = 20 (no overlap)
 MODEL: t(min): prob
 VGG16: 0.97  : 96.8 % 

@@ -5,15 +5,19 @@ TESTS = 1
 SAMPLE_STYLE = 'conditional'
 WIN_SIZE = 10 
 OVERLAPPING = 'stride' #'stride' 'None' 'full'
-STRIDE      = 3 # only for stride
+STRIDE      = 5 # only for stride
 NUM_SAMPLES = 10
 PADDING_SIZE = 2
-#MODEL = 'resnet50' # 'mobilenet_v2'
+# Imagenet 
+#   'resnet50', 'mnv2', 'vgg16', 'alexnet'
+# costum rsicd
+#   'c_jakob'
+MODEL = 'vgg16'
 
-SOFTMAX = False 
+SOFTMAX = True 
 
 SHOW = False  # show image before processing
-IMG_IDX = 6
+IMG_IDX = 1
 
 UPDATE = False
 
@@ -21,9 +25,8 @@ BATCH_SIZE = 64
 
 #--- SELECT DATA SOURCE ---#
 #*** IMAGENET VAL ***! THIS HAS TO BE SELECTED FOR GAUSSIAN PARAMETER OF IMAGENET!
-# DATASET_PATH = './data/val/'
-#*** TEST INET    
-DATASET_PATH = './img/'
+DATASET_PATH = './data/val/'
+
 #*** XAI RSICD TEST 
 # DATASET_PATH = './data/RSICD/04_RSICD_XAI/'
 #*** Airport rsicd
@@ -31,13 +34,17 @@ DATASET_PATH = './img/'
 #*** Beach rsicd
 # DATASET_PATH = './data/RSICD/04_RSICD_XAI_Beach/'
 
+#*** TEST INET    
+IMAGE_PATH = './img/'
+#IMAGE_PATH = './data/RSICD/04_RSICD_XAI/'
+
 # imagenet 
 RESULT_PATH = './results/'
 # RSICD
 # RESULT_PATH = './res_RSICD/'
 
 # number of images for statistic paramter of conditional sampler
-PARAM_DATASET_SIZE = 256 # IMAGENET
+PARAM_DATASET_SIZE = 512 # IMAGENET
 # PARAM_DATASET_SIZE = 100 # RSICD
 
 # image net

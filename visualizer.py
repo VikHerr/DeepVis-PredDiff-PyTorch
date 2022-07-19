@@ -42,9 +42,9 @@ def plot_results(x_test, x_test_im, sensMap, predDiff, classnames, testIdx, save
     # print('class:',  classnames[maxIdx],  classnames[tarIdx])
     p = predDiff.reshape((imsize[1],imsize[2],-1))[:,:,tarIdx]
     p_all = predDiff.reshape((imsize[1],imsize[2],-1))
-    # plt.imshow(p, cmap=cm.seismic, vmin=-np.max(np.abs(p)), vmax=np.max(np.abs(p)), interpolation='nearest')
+    plt.imshow(p, cmap=cm.seismic, vmin=-np.max(np.abs(p)), vmax=np.max(np.abs(p)), interpolation='nearest')
     # plt.imshow(p, cmap=cm.seismic, vmin=-np.max(np.abs(p_all)), vmax=np.max(np.abs(p_all)), interpolation='nearest')
-    plt.imshow(p, cmap=cm.seismic, vmin=(-1), vmax=1, interpolation='nearest')
+    # plt.imshow(p, cmap=cm.seismic, vmin=(-1), vmax=1, interpolation='nearest')
     # plt.imshow(p, cmap=cm.seismic, interpolation='nearest')
 
     plt.colorbar()
