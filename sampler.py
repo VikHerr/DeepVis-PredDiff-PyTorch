@@ -74,9 +74,9 @@ class ConditionalSampler:
         if os.path.exists(path_mean+'.npy') and os.path.exists(path_cov+'.npy'):
             
             means = np.load(path_mean+'.npy')
-            print('means: ', means.shape)
+            # print('means: ', means.shape)
             covs = np.load(path_cov+'.npy')       
-            print('covs: ', covs.shape)
+            # print('covs: ', covs.shape)
 
         else:
                  

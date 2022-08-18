@@ -8,7 +8,7 @@ import numpy as np
 import time
 import torch
 
-from config import STRIDE
+from config import REGRESSION, STRIDE, TRAINSIZE, CLASSES
 
 class PredDiffAnalyser:
     '''
@@ -270,13 +270,13 @@ class PredDiffAnalyser:
         # therefore we loog at the avg over all activations, and the max
         prediction_diffs = []
         # For the laplace correction, we need the number of training instances
-        IMAGENET_TRAINSIZE = 100000
-        IMAGENET_CLASSES   = 1000
+        IMAGENET_TRAINSIZE = TRAINSIZE # 100000
+        IMAGENET_CLASSES   = CLASSES # 1000
         pred_diffs = np.zeros((self.tests_per_batch,tarVals.shape[-1]))
         for t in range(self.tests_per_batch):
             avgP = np.average(tarVals[t], axis=0)
-            if self.classifier.softmax: 
-                # if we deal with probabilities, i.e., the last blobs, use this (always):
+            if self.classifier.softmax or self.classifier.ood or REGRESSION == '': 
+                # if we deal with probabilities, i.e., the last blobs use this (always):
                 # do a laplace correction to avoid problems with zero probabilities
                 tarVal_laplace = (self.true_tar_val[0]*IMAGENET_TRAINSIZE+1)/(IMAGENET_TRAINSIZE+IMAGENET_CLASSES)
                 avgP_laplace = (avgP*IMAGENET_TRAINSIZE+1)/(IMAGENET_TRAINSIZE+IMAGENET_CLASSES)# len(self.true_tar_val))
