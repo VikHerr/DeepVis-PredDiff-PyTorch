@@ -3,11 +3,14 @@
 import torch 
 import torchvision as tv
 
+from config import CLASSES
+
 class Classifier:
 
-    def __init__(self, model, path="model/ilsvrc_2012_labels.txt", softmax=True, categroies="model/imagenet_classes.txt"):
+    def __init__(self, model, softmax=True, categroies="model/imagenet_classes.txt"):
         '''
-        path: path to result categories
+        categroies: path to result categories
+        ood : function for post processing
         '''
 
         self.name = model['name']
@@ -16,6 +19,7 @@ class Classifier:
         self.model = self.__getClassifier(model)
         self.categories = self.__getCategories(categroies)
         self.softmax    = softmax
+        self.ood        = model['ood']
 
     def predict(self,x):
 
@@ -39,10 +43,14 @@ class Classifier:
         with torch.no_grad():
             output = self.model(x)
 
-        if self.softmax:
+        if self.ood:
             probabilities = torch.nn.functional.softmax(output, dim=1)
+            return self.ood(probabilities,CLASSES)
+        elif self.softmax:
+            probabilities = torch.nn.functional.softmax(output, dim=1)
+
         else:
-            probabilities = output
+            return output
 
         return probabilities
 
@@ -53,7 +61,11 @@ class Classifier:
 
         return prob[:,cat_idx]
           
- 
+    def getOod(self,x):
+        y = self.predict(x)
+        return y
+
+
     def getTopCats(self,x, top=1):
         '''
         get top categorys
@@ -73,8 +85,11 @@ class Classifier:
         '''
         get idx of top category
         '''
-        top_probs, top_catids = self.getTopCats(x,top=1)
-        return top_probs[0][0].item(), top_catids[0][0].item()
+        if self.ood:
+            return self.getOod(x), int(0)
+        else:
+            top_probs, top_catids = self.getTopCats(x,top=1)
+            return top_probs[0][0].item(), top_catids[0][0].item()
         
     def report(self):
         print('eval model: \n', self.model)
@@ -83,32 +98,6 @@ class Classifier:
         '''
         define classifier model
         '''
-        # classifier is selected from toplevel now
-        # if(self.name=='moblienet_v2'):
-        #     model = tv.models.mobilenet_v2(pretrained=True)
-        #     # switch to inferance mode (This should be done for all models)
-        # elif('resnet' in self.name):
-
-        #     if self.name == 'resnet50':
-        #         model = tv.models.resnet50(pretrained=True)
-        #     elif self.name == 'resnet18':
-        #         print('load resnet18')
-        #         model = tv.models.resnet18(pretrained=True)
-        #     else:
-        #         assert False, 'invaled resnet version'
-
-        #     model = tv.models.resnet50(pretrained=True)
-        # elif(self.name == 'alexnet'):
-        #     model = tv.models.alexnet(pretrained=True)
-
-        # elif(self.name == 'vgg16'):
-        #     model = tv.models.vgg16(pretrained=True)
-        # elif(self.name == 'costum'):
-        #     model = torch.load(self.cPath)
-        # else:
-        #     assert False, 'unkown model name!'
-
-        # take model from toplevel
         model = modelInfo['model']
         model.eval()
 
