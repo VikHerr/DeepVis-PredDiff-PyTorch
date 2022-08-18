@@ -93,17 +93,31 @@ class DataLoader:
             img = Image.open(self.data_path + img_path)
             y,x = img.size
             ch  = len(img.getbands())
-            if ch == self.img_dims[0] and x >= self.img_dims[-1] and y >= self.img_dims[-1]:
-                # get displaye image
-                img_dspl = self.display(img)
-                batch_dspl.append(img_dspl.permute(1, 2, 0))
+            if True:#x >= self.img_dims[-1] and y >= self.img_dims[-1]:
+                if ch == self.img_dims[0]: # RGB
+                    d_img = img
 
+                elif img.mode == 'RGBA':
+                    d_img = Image.new('RGB', img.size, color=(255,255,255))
+                    d_img.paste(img, mask=img.split()[3])
+
+                else:
+                    print("Skipped", img_path, "dims were to small")
+                    batch_end = batch_end + 1
+
+                    if idx >= (batch_end-1):
+                        break
+                    else:
+                        continue # skip next part
+
+
+                img_dspl = self.display(d_img)
+                batch_dspl.append(img_dspl.permute(1, 2, 0))
                 # get torch input
-                img_pp = self.preprocess(img)
+                img_pp = self.preprocess(d_img)
                 img_tensor = img_pp.unsqueeze(0) # create a mini-batch as expected by the model
                 batch = torch.vstack((batch, img_tensor))
                 batch_paths.append(img_path.replace(".",""))
-                #print('added ', img_path, 'to batch')
             else:
                 print("Skipped", img_path, "dims were to small")
                 batch_end = batch_end + 1
