@@ -1,7 +1,6 @@
 # git ignore file
 
 
-**/data/val/*
 **/gaussians/*
 **/results/**
 **/res_*/**
@@ -11,7 +10,9 @@
 *.npz
 *.pth
 
-**data
+**/data/*
+!**/data/ilsvrc_2012_test
+
 **code-workspace*
 
 **poetry.lock
