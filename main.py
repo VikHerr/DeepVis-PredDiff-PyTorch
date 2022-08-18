@@ -3,12 +3,9 @@
 import numpy as np
 import torch 
 import torchvision as tv
-from PIL import Image
 import time
 import os
 import argparse
-
-import cv2
 
 # pda imports 
 import dataloader as udl 
@@ -274,7 +271,7 @@ def convert_uint8(path, x_name):
 
 def experiment(model, visualize=False, convert=False):
 
-    dataLoader = udl.DataLoader(model=model, path=IMAGE_PATH)
+    dataLoader = udl.DataLoader(path=IMAGE_PATH)
 
     test_size = TESTS
     show      = SHOW
@@ -433,5 +430,7 @@ def main():
 
 
 if __name__=='__main__':
+    print('troch', torch.__version__)
+    print('numpy', np.version.version)
     main()
 

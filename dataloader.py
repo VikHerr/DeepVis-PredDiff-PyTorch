@@ -8,14 +8,11 @@ import matplotlib.pyplot as plt
 
 class DataLoader:
 
-    def __init__(self,model=None, path='./data/val/', img_dims=(3,224,224), ):
+    def __init__(self, path='./data/val/', img_dims=(3,224,224), ):
         '''
         init data loader for MobileNetV2 (for now only MNV2!)
         preprocess: list [<preprocess function>, <display function>] of specific model
         '''
-
-        # self.preprocess = model['preprocess']
-        # self.display    = model['display']
 
         self.preprocess = tv.transforms.Compose([
             tv.transforms.Resize(256),
@@ -37,9 +34,6 @@ class DataLoader:
         '''
         load image from file and create format expected by the model
         '''
-
-        # TODO: add image data net loader
-        #       This might not be so important!
 
         input_image = Image.open(path) 
         #input_image.show()
@@ -71,17 +65,12 @@ class DataLoader:
         else:
             img_set = img_set[s_idx:]
 
-        # for img_file in img_set:
-        #     if not (img_file.endswith(".png") or img_file.endswith(".jpg") or img_file.endswith(".jpeg")):
-        #         img_set.remove(img_file)
-        #         print('removed', img_file)
-
         image_list = img_set # [1:set_size]
         batch_paths = []
         batch_dspl  = []
 
 
-        print(self.data_path)
+        print('Using dataset:', self.data_path)
         # empty batch
         batch = torch.empty((0,self.img_dims[0], self.img_dims[1], self.img_dims[2]))
         batch_end = b_size
@@ -93,34 +82,32 @@ class DataLoader:
             img = Image.open(self.data_path + img_path)
             y,x = img.size
             ch  = len(img.getbands())
-            if True:#x >= self.img_dims[-1] and y >= self.img_dims[-1]:
-                if ch == self.img_dims[0]: # RGB
-                    d_img = img
 
-                elif img.mode == 'RGBA':
-                    d_img = Image.new('RGB', img.size, color=(255,255,255))
-                    d_img.paste(img, mask=img.split()[3])
+            if ch == self.img_dims[0]: # RGB
+                d_img = img
 
-                else:
-                    print("Skipped", img_path, "dims were to small")
-                    batch_end = batch_end + 1
+            elif img.mode == 'RGBA':
+                d_img = Image.new('RGB', img.size, color=(255,255,255))
+                d_img.paste(img, mask=img.split()[3])
 
-                    if idx >= (batch_end-1):
-                        break
-                    else:
-                        continue # skip next part
-
-
-                img_dspl = self.display(d_img)
-                batch_dspl.append(img_dspl.permute(1, 2, 0))
-                # get torch input
-                img_pp = self.preprocess(d_img)
-                img_tensor = img_pp.unsqueeze(0) # create a mini-batch as expected by the model
-                batch = torch.vstack((batch, img_tensor))
-                batch_paths.append(img_path.replace(".",""))
             else:
                 print("Skipped", img_path, "dims were to small")
                 batch_end = batch_end + 1
+
+                if idx >= (batch_end-1):
+                    break
+                else:
+                    continue # skip next part
+
+
+            img_dspl = self.display(d_img)
+            batch_dspl.append(img_dspl.permute(1, 2, 0))
+            # get torch input
+            img_pp = self.preprocess(d_img)
+            img_tensor = img_pp.unsqueeze(0) # create a mini-batch as expected by the model
+            batch = torch.vstack((batch, img_tensor))
+            batch_paths.append(img_path.replace(".",""))
+
 
             if idx >= (batch_end-1):
                 break
@@ -131,20 +118,9 @@ class DataLoader:
         '''
         sim a bigger batch size
         '''
-        # hack to generate bigger batches from single image
+        # hack to generate bigger batches from single image test function
         for div in range((batch_size - 1).bit_length()):
             input_batch = torch.cat((input_batch,input_batch))
 
         return input_batch
 
-
-if __name__=='__main__':
-
-    dataLoader = DataLoader()
-
-    batch,dspl,_ =dataLoader.get_imagenet_data(b_size=8)
-
-    plt.imshow(dspl[0])
-    plt.show()
-
-    print(batch.shape)

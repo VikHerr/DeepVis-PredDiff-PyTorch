@@ -46,7 +46,6 @@ class ConditionalSampler:
         self.patchSize = win_size+2*self.padding_size
         # the mean and covariance for the gaussian distribution on the whole patch
         self.meanVects, self.covMats = self._get_gauss_params()
-        print('mean', self.meanVects.shape, 'cov', self.covMats.shape)
 
         # the min/max values for the features seen in the data, so that we can cut off overfloating values
         if not os.path.exists(self.path_folder+'{}_minMaxVals.npy'.format(netname)):
