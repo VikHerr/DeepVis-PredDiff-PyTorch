@@ -1,0 +1,7 @@
+top
+trouser
+pullover
+coat
+shirt
+sneaker
+ankleboot

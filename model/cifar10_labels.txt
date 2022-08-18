@@ -1,0 +1,7 @@
+bird
+cat
+deer
+dog
+frog
+horse
+

@@ -1,0 +1,7 @@
+earthquake
+fire
+flooding
+hurricane
+tsunami
+wildfire
+volcano
